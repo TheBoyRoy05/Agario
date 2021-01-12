@@ -5,22 +5,25 @@ public class Enemy {
 
     private int x, y;
     private int vx, vy, evx, evy;
+    private int randx = 0, randy = 0;
     private int rad;
     private int mass;
-    private int speed;
+    private int speed, prevSpeed;
     private double theta;
     private Color color;
 
     public Enemy() {
-    	int randx = 0, randy = 0;
     	
     	while(randx == 0) randx = (int)(Math.random()*100-200);
     	while(randy == 0) randy = (int)(Math.random()*100-200);
     	
     	mass = (int)(Math.random()*(2000)+600);;
     	rad = (int) (Math.sqrt(mass / Math.PI));
-    	speed = 100/rad + 1;
-    	theta = Math.atan(randx/randy);
+    	speed = 75/rad + 1;
+    	//while(Math.toDegrees(theta) == 0 || Math.toDegrees(theta) == 90 ||
+    		  //Math.toDegrees(theta) == 180 || Math.toDegrees(theta) == 270) {
+    		theta = Math.atan(randx / randy);
+    	//}
     	
         x = (int)(Math.random()*(2000-rad));
         y = (int)(Math.random()*(2000-rad));
@@ -35,8 +38,20 @@ public class Enemy {
     }
 
     public void paint(Graphics g) {
-        update();
+    	if(vy == 0 || vx == 0) {
+        	theta = Math.atan((Math.random()*100-200) / (Math.random()*100-200));
+        	vx = Math.round((float)(speed*Math.sin(theta)));
+            vy = Math.round((float)(speed*Math.cos(theta)));
+    	}
+    	prevSpeed = speed;
         rad = (int) (Math.sqrt(mass / Math.PI));
+        speed = 75/rad + 1;
+        if(prevSpeed != speed) {
+        	theta = Math.atan(vx / vy);
+        	vx = Math.round((float)(speed*Math.sin(theta)));
+            vy = Math.round((float)(speed*Math.cos(theta)));
+        }
+        update();
         g.setColor(color);
         g.fillOval(x, y, rad*2, rad*2);
     }
@@ -79,6 +94,10 @@ public class Enemy {
     
     public int getMass() {
     	return mass;
+    }
+    
+    public void setMass(int m) {
+    	mass += m;
     }
     
     public void update() {
