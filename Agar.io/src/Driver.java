@@ -25,17 +25,27 @@ public class Driver extends JPanel implements MouseListener, ActionListener{
 	int dx, dy;
 	int evx, evy;
 	int rectx, recty;
-	int worldw = 2000, worldh = 2000;
+	int oworldw = 3200, oworldh = 2400;
+	int worldw, worldh;
+	int pcx, pcy;
 	int max = 0;
 	int count = 0;
 	int speed;
 	double theta;
+	float scale = 1, prevScale, scaleP;
 	
 	Font Futura = new Font("Futura", Font.BOLD, 20);
 	
 	public void paint(Graphics g) {
 		super.paintComponent(g);
 		
+		prevScale = scale;
+		scale = p.getScale();
+		pcx = p.getXPos() + p.getRad();
+		pcy = (int) (p.getYPos() + 1.3*p.getRad());
+		
+		worldw = (int) (oworldw * scale);
+		worldh = (int) (oworldh * scale);
 		int speed = Math.round(75 / p.getRad()) + 1;
 		
 		if(dy == 0) {
@@ -59,7 +69,7 @@ public class Driver extends JPanel implements MouseListener, ActionListener{
 				f.setEVY(evy);
 				collide(p, f, j);
 				for(Enemy e: enemies) {
-					collide(e, f, j);
+					//collide(e, f, j);
 				}
 			}
 		}
@@ -88,53 +98,53 @@ public class Driver extends JPanel implements MouseListener, ActionListener{
 		}
 		
 		if (follow) {
-			dx = (int) (MouseInfo.getPointerInfo().getLocation().getX() - p.getXPos() - p.getRad());
-			dy = (int) (MouseInfo.getPointerInfo().getLocation().getY() - p.getYPos() - 1.4 * p.getRad());
-			System.out.println(dx + ", " + dy);
+			dx = (int) (MouseInfo.getPointerInfo().getLocation().getX() - pcx);
+			dy = (int) (MouseInfo.getPointerInfo().getLocation().getY() - pcy);
 		}
 		
 		if (alive) {
 			g.setColor(Color.black);
-			g.setFont(Futura);
-			g.drawString("Mass: " + p.getMass() / 10, 80, 500);
-			g.drawRect(rectx, recty, worldw, worldh);
+			g.drawRect(rectx, recty, Math.round(worldw * scale), Math.round(worldh * scale));
 			rectx += evx;
 			recty += evy;
 			p.paint(g);
-			p.incrX(evx);
-			p.incrY(evy);
+			p.incrX(Math.round(-1*evx/scale));
+			p.incrY(Math.round(-1*evy/scale));
+			g.setColor(Color.black);
+			g.setFont(Futura);
+			g.drawString("Mass: " + p.getMass() / 10, 80, 500);
 		}
 		
-		if(count == 5) {
-			food.add(new Food(rectx, recty, worldw, worldh));
-			count = 0;
-		}else count++;
+		/*if(scale != prevScale) {
+			rectx = Math.round(pcx - Math.abs(p.getX())/scale);
+			recty = Math.round(pcy - Math.abs(p.getY())/scale);
+		}*/
+		
+		if(count%3 == 0) food.add(new Food(rectx, recty, worldw, worldh));
+		else if(count%25 == 0) enemies.add(new Enemy(rectx, recty, worldw, worldh));
+		count++;
 	}
 	
 	public void collide(Cell p, Enemy e, int i) {
-		int pcenterx = p.getXPos() + p.getRad();
-		int pcentery = (int) (p.getYPos() + 1.4*p.getRad());
 		int ecenterx = e.getX() + e.getRad();
-		int ecentery = (int) (e.getY() + 1.4*e.getRad());
+		int ecentery = (int) (e.getY() + 1.3*e.getRad());
 		if (p.getMass() > e.getMass() + 200) {
-			if(pyth(pcenterx - ecenterx, pcentery - ecentery) < p.getRad()) {
+			if(pyth(pcx - ecenterx, pcy - ecentery) < p.getRad()) {
 				enemies.remove(i);
 				p.setMass(e.getMass());
 			}
 		}
 		else if(e.getMass() > p.getMass() + 200) {
-			if(pyth(pcenterx - ecenterx, pcentery - ecentery) < e.getRad()) {
+			if(pyth(pcx - ecenterx, pcy - ecentery) < e.getRad()) {
 				alive = false;
 			}
 		}
 	}
 	
 	public void collide(Cell p, Food f, int i) {
-		int pcenterx = p.getXPos() + p.getRad();
-		int pcentery = (int) (p.getYPos() + 1.4*p.getRad());
 		int fcenterx = f.getX() + f.getRad();
-		int fcentery = (int) (f.getY() + 1.4*f.getRad());
-		if(pyth(pcenterx - fcenterx, pcentery - fcentery) < p.getRad()) {
+		int fcentery = (int) (f.getY() + 1.3*f.getRad());
+		if(pyth(pcx - fcenterx, pcy - fcentery) < p.getRad()) {
 			food.remove(i);
 			p.setMass(f.getMass());
 		}
@@ -142,9 +152,9 @@ public class Driver extends JPanel implements MouseListener, ActionListener{
 	
 	public void collide(Enemy e, Enemy e2, int i, int j) {
 		int ecenterx = e.getX() + e.getRad();
-		int ecentery = (int) (e.getY() + 1.4*e.getRad());
+		int ecentery = (int) (e.getY() + 1.3*e.getRad());
 		int e2centerx = e2.getX() + e2.getRad();
-		int e2centery = (int) (e2.getY() + 1.4*e2.getRad());
+		int e2centery = (int) (e2.getY() + 1.3*e2.getRad());
 		if (e.getMass() > e2.getMass() + 200) {
 			if(pyth(e2centerx - ecenterx, e2centery - ecentery) < e.getRad()) {
 				enemies.remove(j);
@@ -161,9 +171,9 @@ public class Driver extends JPanel implements MouseListener, ActionListener{
 	
 	public void collide(Enemy e, Food f, int i) {
 		int ecenterx = e.getX() + e.getRad();
-		int ecentery = (int) (e.getY() + 1.4*e.getRad());
+		int ecentery = (int) (e.getY() + 1.3*e.getRad());
 		int fcenterx = f.getX() + f.getRad();
-		int fcentery = (int) (f.getY() + 1.4*f.getRad());
+		int fcentery = (int) (f.getY() + 1.3*f.getRad());
 		if(pyth(ecenterx - fcenterx, ecentery - fcentery) < e.getRad()) {
 			food.remove(i);
 			e.setMass(f.getMass());
@@ -180,11 +190,11 @@ public class Driver extends JPanel implements MouseListener, ActionListener{
 		frame.add(this);
 		frame.addMouseListener(this);
 		
-		for(int i = 0 ; i < 50; i++) {
-			enemies.add(new Enemy());
+		for(int i = 0 ; i < 250; i++) {
+			enemies.add(new Enemy(rectx, recty, worldw, worldh));
 		}
 		
-		for(int i = 0; i < 200; i++) {
+		for(int i = 0; i < 1000; i++) {
 			food.add(new Food(rectx, recty, worldw, worldh));
 		}
  
@@ -227,6 +237,5 @@ public class Driver extends JPanel implements MouseListener, ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		repaint();
-		
 	}
 }

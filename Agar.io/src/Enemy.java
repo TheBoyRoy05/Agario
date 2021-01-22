@@ -12,24 +12,25 @@ public class Enemy {
     private double theta;
     private Color color;
 
-    public Enemy() {
+    public Enemy(int x, int y, int w, int h) {
     	
-    	while(randx == 0) randx = (int)(Math.random()*100-200);
-    	while(randy == 0) randy = (int)(Math.random()*100-200);
+    	while(randx == 0) randx = (int)(Math.random()*200-100);
+    	while(randy == 0) randy = (int)(Math.random()*200-100);
     	
-    	mass = (int)(Math.random()*(2000)+600);;
-    	rad = (int) (Math.sqrt(mass / Math.PI));
+    	mass = (int)(Math.random()*(2000)+600);
+    	rad = (int)(Math.sqrt(mass / Math.PI));
     	speed = 75/rad + 1;
+    	
     	//while(Math.toDegrees(theta) == 0 || Math.toDegrees(theta) == 90 ||
     		  //Math.toDegrees(theta) == 180 || Math.toDegrees(theta) == 270) {
     		theta = Math.atan(randx / randy);
     	//}
+    		
+    	vx = Math.round((float) (speed*Math.sin(theta)));
+        vy = Math.round((float) (speed*Math.cos(theta)));
     	
-        x = (int)(Math.random()*(2000-rad));
-        y = (int)(Math.random()*(2000-rad));
-        
-        vx = Math.round((float)(speed*Math.sin(theta)));
-        vy = Math.round((float)(speed*Math.cos(theta)));
+        this.x = (int)(Math.random()*(w - rad) + x);
+        this.y = (int)(Math.random()*(h - rad) + y);
 
         int red = (int)(Math.random()*256);
         int green = (int)(Math.random()*256);
@@ -39,7 +40,7 @@ public class Enemy {
 
     public void paint(Graphics g) {
     	if(vy == 0 || vx == 0) {
-        	theta = Math.atan((Math.random()*100-200) / (Math.random()*100-200));
+        	theta = Math.atan((Math.random()*200-100) / (Math.random()*200-100));
         	vx = Math.round((float)(speed*Math.sin(theta)));
             vy = Math.round((float)(speed*Math.cos(theta)));
     	}

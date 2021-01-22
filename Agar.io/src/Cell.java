@@ -8,22 +8,28 @@ public class Cell {
     private int vx, vy;
     private int rad;
     private int mass;
+    private float scale = 1;
     private Color color;
 
     public Cell() {
     	mass = 1000;
     	rad = (int) (Math.sqrt(mass / Math.PI));
-        
         color = new Color(255, 0, 0);
-    }
-
-    public void paint(Graphics g) {
-        update();
-        rad = (int) (Math.sqrt(mass / Math.PI));
         xpos = 400 - rad;
         ypos = 300 - rad;
         x = xpos;
         y = ypos;
+    }
+
+    public void paint(Graphics g) {
+        update();
+        if (mass / 10 < 500000) rad = (int) (Math.sqrt(mass / Math.PI));
+        else {
+        	int newM = mass/10;
+        	scale = (float) ((Math.pow(newM/10, 2) + 10000000) / (4 * Math.pow(newM/10, 2) + 10000000));
+        }
+        xpos = 400 - rad;
+        ypos = 300 - rad;
         g.setColor(color);
         g.fillOval(xpos, ypos, rad*2, rad*2);
     }
@@ -62,6 +68,10 @@ public class Cell {
     
     public void setMass(int m) {
     	mass += m;
+    }
+    
+    public float getScale() {
+    	return scale;
     }
 
     public void update() {
